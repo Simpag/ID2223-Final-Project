@@ -1,0 +1,7 @@
+url: "https://www.football-data.co.uk/downloadm.php"
+file_name: "Season 2024/2025" # File name on the website
+sheets_mapping:
+  { "E0": "england-premier-league", "SC0": "scotland-premiership" }
+fill_columns: { "B365H": "BWH", "B365D": "BWD", "B365A": "BWA" } # To from columns which to fill N/A values
+column_mapping: { "B365H": "Odds" } # To from columns to rename
+save_dir: "outputs" # Where to save outputs
