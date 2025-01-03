@@ -49,8 +49,15 @@ def download_data(config: dict) -> bytes:
         print(f"Failed to fetch the webpage. Status code: {response.status_code}")
 
 
-def extract_data(config: dict, data: bytes):
+def extract_data(
+    config: dict, data: bytes, save_to_file=False
+) -> dict[str, pd.DataFrame]:
+    dfs = dict()
     columns_with_na = list()
+
+    if save_to_file:
+        setup_dirs(config)
+
     # Read the Excel file and load specified sheets
     with pd.ExcelFile(BytesIO(data)) as excel_file:
         for sheet_name in config["sheets_mapping"]:
@@ -75,28 +82,14 @@ def extract_data(config: dict, data: bytes):
                     )
                     df.drop(columns=["Time"], inplace=True)
 
-                # Rename columns
-                df.rename(columns=config["column_mapping"], inplace=True)
-
                 # Save or merge
-                df = save_or_concat_data(config, df, sheet_name)
+                if save_to_file:
+                    df = save_or_concat_data(config, df, sheet_name)
+
+                dfs[sheet_name] = df
 
                 # Check if there are missing values in interesting cols
-                cols = [
-                    "Date",
-                    "FTR",
-                    "FTHG",
-                    "FTAG",
-                    "HTHG",
-                    "HTAG",
-                    "HST",
-                    "AST",
-                    "HS",
-                    "AS",
-                    "Odds",
-                    "HR",
-                    "AR",
-                ]
+                cols = config["features"]
                 with_na = df[cols].columns[df[cols].isna().any()].tolist()
                 if len(with_na) > 0:
                     columns_with_na.append(
@@ -107,6 +100,8 @@ def extract_data(config: dict, data: bytes):
 
     for cwn, sheet in columns_with_na:
         print(f"Columns with NaN values: {cwn} in {sheet}")
+
+    return dfs
 
 
 def save_or_concat_data(config: dict, df: pd.DataFrame, sheet_name: str):
@@ -137,8 +132,15 @@ def save_or_concat_data(config: dict, df: pd.DataFrame, sheet_name: str):
     return df
 
 
+def get_dataframes() -> dict[str, pd.DataFrame]:
+    config = load_config()
+    data = download_data(config)
+    dfs = extract_data(config, data, save_to_file=False)
+
+    return dfs
+
+
 if __name__ == "__main__":
     config = load_config()
-    setup_dirs(config)
     data = download_data(config)
-    extract_data(config, data)
+    extract_data(config, data, save_to_file=True)
