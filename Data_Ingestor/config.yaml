@@ -7,4 +7,5 @@ fill_columns: { "B365H": "BWH", "B365D": "BWD", "B365A": "BWA" } # To from colum
 save_dir: "outputs" # Where to save outputs
 # Ingestor settings
 league: "E0"
+lag_window: 7
 features: ["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "FTR", "HTHG", "HTAG", "HTR", "HS", "AS", "HST", "AST", "AvgH", "AvgD", "AvgA", "Avg>2.5", "Avg<2.5"]
