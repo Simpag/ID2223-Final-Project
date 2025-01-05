@@ -1,27 +1,23 @@
 import hopsworks
+import os
 import pandas as pd
-import yaml
 from hsfs.feature_group import FeatureGroup
 from hsfs.feature_store import FeatureStore
 
 from src.data_downloader import get_dataframes
+from src.utils import load_config
 
 
 def login(
-    api_key_file="secret.txt",
     project="ID2223_Project",
 ) -> tuple[hopsworks.project.Project, FeatureStore]:
-    project = hopsworks.login(api_key_file=api_key_file, project=project)
+    project = hopsworks.login(
+        api_key_value=os.environ["HOPSWORKS_API_KEY"],
+        project=project,
+    )
     fs = project.get_feature_store()
 
     return project, fs
-
-
-def load_config() -> dict:
-    with open("config.yaml", "r") as f:
-        config = yaml.safe_load(f)
-
-    return config
 
 
 def set_feature_descriptions(fg: FeatureGroup):
@@ -63,6 +59,7 @@ def set_feature_descriptions(fg: FeatureGroup):
             "name": "league_under_percentage",
             "description": "Percentage of games that were under 2.5 goals",
         },
+        {"name": "ftour", "description": "Full time over/under result"},
     ]
 
     for desc in feature_descriptions:
@@ -96,10 +93,10 @@ def set_lag_feature_descriptions(fg: FeatureGroup):
 def create_league_percentages(df: pd.DataFrame):
     # Calculate league percentage for Over/Under 2.5 goals
     df["total_goals"] = df["fthg"] + df["ftag"]
-    df["ou_res"] = df["total_goals"] > 2.5
+    df.insert(7, "ftour", df["total_goals"].apply(lambda x: "O" if x > 2.5 else "U"))
 
-    df["cum_o"] = (df["ou_res"] == True).cumsum()
-    df["cum_u"] = (df["ou_res"] == False).cumsum()
+    df["cum_o"] = (df["ftour"] == "O").cumsum()
+    df["cum_u"] = (df["ftour"] == "U").cumsum()
 
     # Calculate total games played up to each row (excluding the current row)
     df["total_games"] = df.index
@@ -116,9 +113,7 @@ def create_league_percentages(df: pd.DataFrame):
     df["league_over_percentage"] = (df["cum_o"] / df["total_games"]).fillna(0)
     df["league_under_percentage"] = (df["cum_u"] / df["total_games"]).fillna(0)
 
-    df.drop(
-        columns=["total_goals", "ou_res", "cum_o", "cum_u", "total_games"], inplace=True
-    )
+    df.drop(columns=["total_goals", "cum_o", "cum_u", "total_games"], inplace=True)
 
     return df
 
@@ -209,7 +204,7 @@ def ingest(fs: FeatureStore, config: dict):
     window_size = config["lag_window"]
 
     # Get the dataframe for the specified league in config
-    dfs = get_dataframes()
+    dfs = get_dataframes(config)
     df = dfs[league]
     df = df[features].copy()
 
@@ -281,8 +276,8 @@ def ingest(fs: FeatureStore, config: dict):
         set_lag_feature_descriptions(lags_fg)
 
 
-def run():
-    config = load_config()
+def run(config_path):
+    config = load_config(config_path)
     project, fs = login()
     ingest(fs, config)
 

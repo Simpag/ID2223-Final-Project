@@ -7,12 +7,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from io import BytesIO
 
-
-def load_config():
-    with open("config.yaml", "r") as f:
-        config = yaml.safe_load(f)
-
-    return config
+from src.utils import load_config
 
 
 def setup_dirs(config: dict):
@@ -132,8 +127,7 @@ def save_or_concat_data(config: dict, df: pd.DataFrame, sheet_name: str):
     return df
 
 
-def get_dataframes() -> dict[str, pd.DataFrame]:
-    config = load_config()
+def get_dataframes(config) -> dict[str, pd.DataFrame]:
     data = download_data(config)
     dfs = extract_data(config, data, save_to_file=False)
 
@@ -141,6 +135,6 @@ def get_dataframes() -> dict[str, pd.DataFrame]:
 
 
 if __name__ == "__main__":
-    config = load_config()
+    config = load_config("config.yaml")
     data = download_data(config)
     extract_data(config, data, save_to_file=True)
