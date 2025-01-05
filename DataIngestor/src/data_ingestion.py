@@ -280,6 +280,7 @@ def run(config_path):
     config = load_config(config_path)
     project, fs = login()
     ingest(fs, config)
+    hopsworks.logout()
 
 
 if __name__ == "__main__":

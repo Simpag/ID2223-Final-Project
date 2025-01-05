@@ -1,0 +1,6 @@
+modal
+xgboost
+hopsworks[python]
+scikit-learn==1.5.2
+matplotlib
+seaborn

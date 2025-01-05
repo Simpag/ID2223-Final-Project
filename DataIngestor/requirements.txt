@@ -1,0 +1,7 @@
+modal
+pyyaml
+requests
+beautifulsoup4
+pandas
+openpyxl
+hopsworks[python]
