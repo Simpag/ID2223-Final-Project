@@ -171,4 +171,5 @@ cython_debug/
 .pypirc
 outputs/
 secret.txt
+hopsworks_secret.txt
 test.ipynb
