@@ -11,7 +11,7 @@ def get_odds_local():
         return parsed
 
 def get_odds(date):
-    api_key = os.getenv("FOOTBALL_API_KEY", "rnvlSh0sFVm02p4C6pND8sGnMm4gW6GaDlYncN3O") 
+    api_key = os.getenv("FOOTBALL_API_KEY", "") 
     url = f"https://api.sportradar.com/oddscomparison-ust1/en/eu/sports/sr%3Asport%3A1/{date}/schedule.json?api_key={api_key}"
 
 
