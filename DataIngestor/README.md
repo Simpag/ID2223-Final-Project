@@ -2,6 +2,8 @@
 `HOPSWORKS_API_KEY`: Api key to hopsworks must be set
 
 # Run
+First cd into this directory.
+
 You can deploy this module by running: `modal deploy start_ingest.py --name data_ingestor`
 
 You can also run it once using: `modal run start_ingest.py`

@@ -1,6 +1,4 @@
 requests
-modal
 xgboost
 hopsworks[python]
-pandas
 joblib

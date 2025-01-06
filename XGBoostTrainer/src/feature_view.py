@@ -52,16 +52,12 @@ def _create_feature_view(
             "league_under_percentage",
         ]
     ).join(
-        lags_fg.select(
+        lags_fg.select_except(
             [
-                "hs_lags",
-                "as_lags",
-                "fthg_lags",
-                "ftag_lags",
-                "hthg_lags",
-                "htag_lags",
-                "hst_lags",
-                "ast_lags",
+                "index",
+                "datetime",
+                "hometeam",
+                "awayteam",
             ]
         )
     )

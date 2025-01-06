@@ -76,14 +76,6 @@ def set_lag_feature_descriptions(fg: FeatureGroup):
         {"name": "datetime", "description": "Match datetime"},
         {"name": "HomeTeam", "description": "Home Team"},
         {"name": "AwayTeam", "description": "Away Team"},
-        {"name": "hs_lags", "description": "Home shot lags"},
-        {"name": "fthg_lags", "description": "Full time home goal lags"},
-        {"name": "hthg_lags", "description": "Half time home goal lags"},
-        {"name": "hst_lags", "description": "Home shot on target lags"},
-        {"name": "as_lags", "description": "Away shot lags"},
-        {"name": "ftag_lags", "description": "Full time away goal lags"},
-        {"name": "htag_lags", "description": "Half time away goal lags"},
-        {"name": "ast_lags", "description": "Away shots on target"},
     ]
 
     for desc in feature_descriptions:
@@ -177,7 +169,22 @@ def create_lag_df(df: pd.DataFrame, window_size):
                 team_data.index = df_lags.loc[df_lags[side] == team].index
                 df_lags.loc[df_lags[side] == team, name] = team_data
 
+    df_lags = expand_lags(df_lags)
+
     return df_lags
+
+
+def expand_lags(df: pd.DataFrame):
+    # Identify columns with lists
+    lag_columns = [col for col in df.columns if col.endswith("_lags")]
+
+    # Expand list columns into separate columns
+    for col in lag_columns:
+        expanded_cols = pd.DataFrame(df[col].tolist(), index=df.index)
+        expanded_cols.columns = [f"{col}_{i+1}" for i in expanded_cols.columns]
+        df = pd.concat([df.drop(columns=[col]), expanded_cols], axis=1)
+
+    return df
 
 
 def format_df(df: pd.DataFrame):

@@ -25,7 +25,7 @@ class Trainer:
 
     def fit(self):
         self.project, self.fs = login()
-        
+
         print("Retrieving data...")
         X_train, X_test, y_train, y_test, feature_view = self._get_data()
         print("Data retrieved")
@@ -114,10 +114,6 @@ class Trainer:
             test_size=self.test_size,
         )
 
-        # Expand the lags
-        X_train = self._expand_lags(X_train)
-        X_test = self._expand_lags(X_test)
-
         # Sort the training features DataFrame 'X_train' based on the 'datetime' column
         X_train = X_train.sort_values("datetime")
 
@@ -137,15 +133,3 @@ class Trainer:
         X_test.drop(columns=["datetime", "hometeam", "awayteam"], inplace=True)
 
         return X_train, X_test, y_train, y_test, feature_view
-
-    def _expand_lags(self, df: pd.DataFrame):
-        # Identify columns with lists
-        lag_columns = [col for col in df.columns if col.endswith("_lags")]
-
-        # Expand list columns into separate columns
-        for col in lag_columns:
-            expanded_cols = pd.DataFrame(df[col].tolist(), index=df.index)
-            expanded_cols.columns = [f"{col}_{i+1}" for i in expanded_cols.columns]
-            df = pd.concat([df.drop(columns=[col]), expanded_cols], axis=1)
-
-        return df
