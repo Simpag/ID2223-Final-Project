@@ -15,8 +15,8 @@ app = modal.App(name="Football XGBoost Model Trainer")
 @app.function(
     image=image,
     secrets=[modal.Secret.from_name("HOPSWORKS_API_KEY")],
-    schedule=modal.Cron("0 2 * * 1"), # Every monday at 2 am
+    schedule=modal.Cron("0 2 * * 1"),  # Every monday at 2 am
 )
 def entry():
-    trainer = Trainer(league="E0", window_size=7, test_size=0.2)
+    trainer = Trainer(league="E0", window_size=4, test_size=0.2)
     trainer.fit()
