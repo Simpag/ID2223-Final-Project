@@ -67,12 +67,13 @@ def _create_feature_view(
     )
     try:
         label_encoder = fs.get_transformation_function(
-            name="ou_transfromation",
+            name="ou_transformation",
             version=1,
         )
     except Exception:
         # Our custom transformation does not exist yet
         print("Creating transfromation function for O/U results")
+
         @udf(int, drop=["value"], mode="pandas")
         def ou_transformation(value: pd.Series) -> pd.Series:
             return value.apply(

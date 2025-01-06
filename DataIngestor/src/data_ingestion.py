@@ -237,10 +237,13 @@ def ingest(fs: FeatureStore, config: dict):
         read_df = []
         feature_descriptions_set = False
 
-    print(
-        f"DATA: Inserting {len(df)} rows, dataset contains {len(dfs[league])} and featurestore already had {len(read_df)} rows"
-    )
-    fg.insert(df)
+    if len(df) > 0:
+        print(
+            f"DATA: Inserting {len(df)} rows, dataset contains {len(dfs[league])} and featurestore already had {len(read_df)} rows"
+        )
+        fg.insert(df)
+    else:
+        print("DATA: Featurestore already contains all data!")
 
     if not feature_descriptions_set:
         set_feature_descriptions(fg)
@@ -267,10 +270,13 @@ def ingest(fs: FeatureStore, config: dict):
         lags_read_df = []
         lags_feature_descriptions_set = False
 
-    print(
-        f"LAGS: Inserting {len(df_lags)} rows, dataset contains {len(dfs[league])} and featurestore already had {len(lags_read_df)} rows"
-    )
-    lags_fg.insert(df_lags)
+    if len(df_lags):
+        print(
+            f"LAGS: Inserting {len(df_lags)} rows, dataset contains {len(dfs[league])} and featurestore already had {len(lags_read_df)} rows"
+        )
+        lags_fg.insert(df_lags)
+    else:
+        print("LAGS: Featurestore already contains all data!")
 
     if not lags_feature_descriptions_set:
         set_lag_feature_descriptions(lags_fg)
