@@ -1,5 +1,6 @@
 ## Environment Variables
 `HOPSWORKS_API_KEY`: Api key to hopsworks must be set in modal secrets
+
 `FOOTBALL_API_KEY`: Api key to Sportsradar must be set in modal secrets
 
 # Run
