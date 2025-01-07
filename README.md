@@ -56,3 +56,6 @@ We managed to successfully implement all the serverless pipelines as individual 
     <img src="Images/training_confusion_matrix.png" height=300> 
     <p>Figure 1: Confusion matrix for trained XGBoost Classifier model</p>
 </div>
+
+## How to run
+Visit each components folder and read the `README.md` to find out how to run each component.
