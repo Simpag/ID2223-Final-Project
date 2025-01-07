@@ -23,10 +23,6 @@ def login(
 def set_feature_descriptions(fg: FeatureGroup):
     # Update feature descriptions
     feature_descriptions = [
-        {
-            "name": "index",
-            "description": "Index of the match in the dataset from football-data.co.uk",
-        },
         {"name": "datetime", "description": "Match datetime"},
         {"name": "HomeTeam", "description": "Home Team"},
         {"name": "AwayTeam", "description": "Away Team"},
@@ -69,10 +65,6 @@ def set_feature_descriptions(fg: FeatureGroup):
 def set_lag_feature_descriptions(fg: FeatureGroup):
     # Update feature descriptions
     feature_descriptions = [
-        {
-            "name": "index",
-            "description": "Index of the match in the dataset from football-data.co.uk",
-        },
         {"name": "datetime", "description": "Match datetime"},
         {"name": "HomeTeam", "description": "Home Team"},
         {"name": "AwayTeam", "description": "Away Team"},
@@ -111,7 +103,7 @@ def create_league_percentages(df: pd.DataFrame):
 
 
 def create_lag_df(df: pd.DataFrame, window_size):
-    df_lags = df[["index", "datetime", "hometeam", "awayteam"]].copy()
+    df_lags = df[["datetime", "hometeam", "awayteam"]].copy()
 
     # Goal lag features
     # Create lag features using rolling window
@@ -198,7 +190,7 @@ def format_df(df: pd.DataFrame):
         columns={"date": "datetime", "as": "awayshots", "hs": "homeshots"},
         inplace=True,
     )  # Rename as to awayshot because as causes hopsworks to not upload data...
-    df.reset_index(inplace=True)
+    df.reset_index(inplace=True, drop=True)
 
     return df
 
@@ -230,15 +222,15 @@ def ingest(fs: FeatureStore, config: dict):
         name=f"football_{league.lower()}",
         version=1,
         description=f"Historical football data for league {league}",
-        primary_key=["index"],
+        primary_key=["datetime", "hometeam", "awayteam"],
         event_time="datetime",
-        online_enabled=True,
+        online_enabled=False,
     )
 
     # Try read data in the feature group in order to filter out data we already have
     try:
-        read_df = fg.select_all().read().sort_values("index", ignore_index=True)
-        df = df[~df["index"].isin(read_df["index"])].copy()
+        read_df = fg.select_all().read()
+        df = df[~df.isin(read_df).all(axis=1)].copy()
     except Exception:
         # If it fails it does not exist so set the descs
         read_df = []
@@ -261,17 +253,15 @@ def ingest(fs: FeatureStore, config: dict):
         name=f"football_{league.lower()}_lags_{window_size}",
         version=1,
         description=f"Lags for historical football data for league {league} with window size {window_size}",
-        primary_key=["index"],
+        primary_key=["datetime", "hometeam", "awayteam"],
         event_time="datetime",
-        online_enabled=True,
+        online_enabled=False,
     )
 
     # Try read data in the feature group in order to filter out data we already have
     try:
-        lags_read_df = (
-            lags_fg.select_all().read().sort_values("index", ignore_index=True)
-        )
-        df_lags = df_lags[~df_lags["index"].isin(lags_read_df["index"])].copy()
+        lags_read_df = lags_fg.select_all().read()
+        df_lags = df_lags[~df_lags.isin(lags_read_df).all(axis=1)].copy()
     except Exception:
         # If it fails it does not exist so set the descs
         lags_read_df = []

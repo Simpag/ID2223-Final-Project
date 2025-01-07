@@ -54,7 +54,6 @@ def _create_feature_view(
     ).join(
         lags_fg.select_except(
             [
-                "index",
                 "datetime",
                 "hometeam",
                 "awayteam",

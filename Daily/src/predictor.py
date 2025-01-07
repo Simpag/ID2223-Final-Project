@@ -72,7 +72,7 @@ class Predictor:
         # Query the latest row from main_fg based
         main_fg_query = main_fg.select(
             [
-                "index",
+                "datetime",
                 "league_over_percentage",
                 "league_under_percentage",
             ]
@@ -80,8 +80,8 @@ class Predictor:
             main_fg.datetime
             >= (datetime.today() - timedelta(weeks=1)).strftime("%Y-%m-%d")
         )
-        main_df = main_fg_query.read(online=True)
-        main_df = main_df[main_df["index"] == main_df["index"].max()].reset_index(
+        main_df = main_fg_query.read()
+        main_df = main_df[main_df["datetime"] == main_df["datetime"].max()].reset_index(
             drop=True
         )
 
@@ -90,14 +90,14 @@ class Predictor:
         lags_home_query = lags_fg.select_all().filter(
             lags_fg.hometeam.isin(home_teams) | lags_fg.awayteam.isin(away_teams)
         )
-        lags_df = lags_home_query.read(online=True)
+        lags_df = lags_home_query.read()
 
         for game in games:
             home_lags = lags_df[lags_df["hometeam"] == game["home"]]
-            home_lags = home_lags[home_lags["index"] == home_lags["index"].max()]
+            home_lags = home_lags[home_lags["datetime"] == home_lags["datetime"].max()]
 
             away_lags = lags_df[lags_df["awayteam"] == game["away"]]
-            away_lags = away_lags[away_lags["index"] == away_lags["index"].max()]
+            away_lags = away_lags[away_lags["datetime"] == away_lags["datetime"].max()]
             df = pd.DataFrame()
             df["league_over_percentage"] = main_df["league_over_percentage"]
             df["league_under_percentage"] = main_df["league_under_percentage"]
