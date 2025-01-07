@@ -172,4 +172,4 @@ cython_debug/
 outputs/
 secret.txt
 hopsworks_secret.txt
-test.ipynb
+test*.ipynb
